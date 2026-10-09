@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bold - Pagos seguros para emprendedores</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        // Array de textos dinámicos
+        const textos = [
+            "Ya somos más de 500.000<br>emprendedores usando Bold.",
+            "¡Con Bold pagas rápido y disfrutas tu compra sin esperas!",
+            "¡Estás pagando con Bold! Así que tu compra es segura.",
+        ];
+        
+        // Seleccionar texto aleatorio al cargar la página
+        window.addEventListener('DOMContentLoaded', function() {
+            const textoAleatorio = textos[Math.floor(Math.random() * textos.length)];
+            document.querySelector('.title').innerHTML = textoAleatorio;
+            
+            // Redirigir después de 3 segundos
+            setTimeout(function() {
+                window.location.href = 'checkout.html';
+            }, 3000);
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <img src="img/bold-logo-white.svg" alt="Bold" class="logo">
+        </header>
+
+        <main class="main-content">
+            <h1 class="title">
+                Ya somos más de 500.000<br>
+                emprendedores usando Bold.
+            </h1>
+
+            <div class="hero-image">
+                <img src="img/checkout_link.png" alt="Bold Payment Platform" class="checkout-image">
+            </div>
+
+            <div class="security-section">
+                <h2 class="security-title">Paga seguro con Bold</h2>
+                <div class="payment-methods">
+                    <img src="img/pci-light.svg" alt="PCI Compliant" class="payment-icon">
+                    <img src="img/hacker-proof.svg" alt="Hacker Proof" class="payment-icon">
+                    <img src="img/service-provider-badge.svg" alt="Service Provider" class="payment-icon">
+                    <img src="img/pse-light.svg" alt="PSE" class="payment-icon">
+                    <img src="img/masterCardLight.svg" alt="Mastercard" class="payment-icon">
+                    <img src="img/visa.svg" alt="Visa" class="payment-icon">
+                    <img src="img/recaptcha-light.svg" alt="reCAPTCHA" class="payment-icon">
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

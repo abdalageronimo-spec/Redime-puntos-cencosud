@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redención Exitosa - Bold</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+        
+        .bold-header {
+            background: linear-gradient(135deg, #E91E63 0%, #C2185B 35%, #7B1FA2 70%, #512DA8 100%);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .bold-logo {
+            height: 35px;
+        }
+        
+        .help-icon {
+            width: 40px;
+            height: 40px;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .verification-content {
+            background: white;
+            min-height: calc(100vh - 65px);
+            padding: 30px 20px;
+        }
+
+        .verification-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px auto 30px;
+            animation: successPulse 0.6s ease-out;
+        }
+
+        @keyframes successPulse {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .success-icon svg {
+            width: 55px;
+            height: 55px;
+            stroke: white;
+            stroke-width: 3;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            animation: checkDraw 0.5s ease-out 0.3s forwards;
+            stroke-dasharray: 50;
+            stroke-dashoffset: 50;
+        }
+
+        @keyframes checkDraw {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .success-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 15px;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .success-subtitle {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 40px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, rgba(233, 30, 99, 0.05) 0%, rgba(123, 31, 162, 0.05) 100%);
+            border: 2px solid rgba(233, 30, 99, 0.2);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(233, 30, 99, 0.1);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 16px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 17px;
+            color: #1a1a1a;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .points-highlight {
+            background: linear-gradient(135deg, #E91E63 0%, #FF6B9D 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 18px;
+        }
+
+        .loader-container {
+            display: flex;
+            justify-content: center;
+            margin: 40px 0 30px;
+        }
+
+        .loader-dots {
+            display: flex;
+            gap: 10px;
+        }
+
+        .loader-dots .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #E91E63 0%, #FF6B9D 100%);
+            animation: dotPulse 1.4s infinite ease-in-out both;
+        }
+
+        .loader-dots .dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .loader-dots .dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes dotPulse {
+            0%, 80%, 100% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #E91E63 0%, #FF6B9D 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #E91E63;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .completion-text {
+            text-align: center;
+            color: #999;
+            font-size: 15px;
+            margin-top: 20px;
+        }
+
+        .cencosud-logo {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .cencosud-logo img {
+            height: 50px;
+            max-width: 100%;
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            .bold-header {
+                padding: 12px 15px;
+            }
+
+            .bold-logo {
+                height: 28px;
+            }
+
+            .help-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 20px;
+            }
+
+            .verification-content {
+                padding: 20px 15px;
+            }
+
+            .verification-container {
+                max-width: 100%;
+            }
+
+            .success-icon {
+                width: 80px;
+                height: 80px;
+                margin: 20px auto;
+            }
+
+            .success-icon svg {
+                width: 45px;
+                height: 45px;
+            }
+
+            .success-title {
+                font-size: 22px;
+                margin-bottom: 12px;
+                padding: 0 10px;
+            }
+
+            .success-subtitle {
+                font-size: 16px;
+                margin-bottom: 30px;
+                padding: 0 10px;
+            }
+
+            .info-card {
+                padding: 20px 15px;
+                margin-bottom: 25px;
+            }
+
+            .info-row {
+                padding: 12px 0;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .info-label {
+                font-size: 14px;
+                flex: 1 1 100%;
+            }
+
+            .info-value {
+                font-size: 15px;
+                flex: 1 1 100%;
+                text-align: left;
+            }
+
+            .points-highlight {
+                font-size: 16px;
+            }
+
+            .loader-container {
+                margin: 30px 0 25px;
+            }
+
+            .loader-dots .dot {
+                width: 10px;
+                height: 10px;
+            }
+
+            .progress-text {
+                font-size: 16px;
+                margin-bottom: 15px;
+            }
+
+            .completion-text {
+                font-size: 14px;
+                margin-top: 15px;
+            }
+
+            .cencosud-logo {
+                margin: 20px 0;
+            }
+
+            .cencosud-logo img {
+                height: 40px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .bold-header {
+                padding: 10px 12px;
+            }
+
+            .bold-logo {
+                height: 25px;
+            }
+
+            .help-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 18px;
+            }
+
+            .verification-content {
+                padding: 15px 12px;
+            }
+
+            .success-icon {
+                width: 70px;
+                height: 70px;
+                margin: 15px auto;
+            }
+
+            .success-icon svg {
+                width: 40px;
+                height: 40px;
+            }
+
+            .success-title {
+                font-size: 20px;
+                margin-bottom: 10px;
+            }
+
+            .success-subtitle {
+                font-size: 15px;
+                margin-bottom: 25px;
+            }
+
+            .info-card {
+                padding: 18px 12px;
+                margin-bottom: 20px;
+                border-radius: 12px;
+            }
+
+            .info-row {
+                padding: 10px 0;
+            }
+
+            .info-label {
+                font-size: 13px;
+            }
+
+            .info-value {
+                font-size: 14px;
+            }
+
+            .points-highlight {
+                font-size: 15px;
+            }
+
+            .progress-text {
+                font-size: 15px;
+            }
+
+            .completion-text {
+                font-size: 13px;
+            }
+
+            .cencosud-logo img {
+                height: 35px;
+            }
+        }
+
+        @media screen and (max-width: 360px) {
+            .success-title {
+                font-size: 18px;
+            }
+
+            .success-subtitle {
+                font-size: 14px;
+            }
+
+            .info-card {
+                padding: 15px 10px;
+            }
+
+            .info-label,
+            .info-value {
+                font-size: 12px;
+            }
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Recuperar datos de sessionStorage
+            const redemptionData = JSON.parse(sessionStorage.getItem('redemptionData') || '{}');
+            
+            if (redemptionData.bank) {
+                document.getElementById('bankName').textContent = redemptionData.bank;
+            }
+            
+            if (redemptionData.accountType) {
+                document.getElementById('accountType').textContent = redemptionData.accountType;
+            }
+            
+            if (redemptionData.accountNumber) {
+                const accountNumber = redemptionData.accountNumber;
+                const lastFourDigits = accountNumber.slice(-4);
+                document.getElementById('accountNumber').textContent = '****' + lastFourDigits;
+            }
+            
+            if (redemptionData.points) {
+                document.getElementById('pointsRedeemed').textContent = redemptionData.points + ' puntos';
+            }
+            
+            if (redemptionData.amount) {
+                document.getElementById('amountReceived').textContent = redemptionData.amount;
+            }
+
+            // Simular progreso de carga
+            const progressBar = document.querySelector('.progress-bar');
+            const progressText = document.querySelector('.progress-text');
+            let progress = 0;
+            
+            const interval = setInterval(() => {
+                progress += 2;
+                if (progressBar) {
+                    progressBar.style.width = progress + '%';
+                }
+                if (progressText) {
+                    progressText.textContent = progress + '%';
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    if (progressText) {
+                        progressText.textContent = 'Completado';
+                    }
+                }
+            }, 50);
+        });
+    </script>
+</head>
+<body>
+    <div class="bold-header">
+        <img src="img/bold-logo-white.svg" alt="Bold" class="bold-logo">
+        <div class="help-icon">?</div>
+    </div>
+
+    <div class="verification-content">
+        <div class="verification-container">
+            <div class="cencosud-logo">
+                <img src="img/logo-cencosud.png" alt="Cencosud">
+            </div>
+
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+
+            <h1 class="success-title">¡Has redimido tus puntos con éxito!</h1>
+            <p class="success-subtitle">Tu dinero llegará en segundos a tu cuenta bancaria</p>
+
+            <div class="info-card">
+                <div class="info-row">
+                    <span class="info-label">Puntos redimidos</span>
+                    <span class="info-value points-highlight" id="pointsRedeemed">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Dinero recibido</span>
+                    <span class="info-value" id="amountReceived">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Banco</span>
+                    <span class="info-value" id="bankName">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Tipo de cuenta</span>
+                    <span class="info-value" id="accountType">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Cuenta</span>
+                    <span class="info-value" id="accountNumber">-</span>
+                </div>
+            </div>
+
+            <div class="loader-container">
+                <div class="loader-dots">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar"></div>
+            </div>
+            <div class="progress-text">0%</div>
+
+            <p class="completion-text">Procesando transferencia...</p>
+        </div>
+    </div>
+</body>
+</html>
